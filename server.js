@@ -2,8 +2,6 @@ const inquirer = require("inquirer");
 
 const mysql = require("mysql2");
 
-const sqlFunctions = require("./sql-functions");
-
 const db = mysql.createConnection(
   {
     host: "localhost",
@@ -14,12 +12,35 @@ const db = mysql.createConnection(
   console.log("Connected to employees database!")
 );
 
-function viewAllDepartments() {
+// SQL FUNCTIONS
+function viewDepartments() {
   db.query("SELECT * FROM department", (err, results) => {
     if (err) throw err;
     console.table(results);
     startPrompt();
   });
+}
+
+function viewRoles() {
+  db.query("SELECT * from role", (err, results) => {
+    if (err) throw err;
+    console.table(results);
+    startPrompt();
+  });
+}
+
+function viewEmployees() {
+  db.query(
+    "SELECT employee.first_name, employee.last_name, role.title, department.department_name, role.salary " +
+      "FROM employee " +
+      "JOIN role ON employee.role_id = role.id " +
+      "JOIN department ON role.department_id = department.id",
+    (err, results) => {
+      if (err) throw err;
+      console.table(results);
+      startPrompt();
+    }
+  );
 }
 
 function startPrompt() {
@@ -44,13 +65,13 @@ function startPrompt() {
     .then((answers) => {
       switch (answers.questions) {
         case "View all departments":
-          viewAllDepartments();
+          viewDepartments();
           break;
         case "View all roles":
-          // Function
+          viewRoles();
           break;
         case "View all employees":
-          // Function
+          viewEmployees();
           break;
         case "Add a department":
           // Function
